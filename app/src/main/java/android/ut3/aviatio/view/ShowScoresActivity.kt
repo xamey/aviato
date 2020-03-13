@@ -7,6 +7,7 @@ import android.ut3.aviatio.helper.getHumanTimeFormatFromMilliseconds
 import android.ut3.aviatio.model.RankedScore
 import android.ut3.aviatio.viewmodel.ScoreViewModel
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -38,11 +39,12 @@ class ShowScoresActivity : AppCompatActivity() {
         scoreViewModel.getStoredScore().observe(this, androidx.lifecycle.Observer {
             var sortedList = it.sortedWith(compareBy({it.Temps}))
             scoresToShow = sortedList.mapIndexed { index, storedScore -> RankedScore(index+1, storedScore.Nom, storedScore.Date, storedScore.Temps) }
-            (findViewById(R.id.top_name) as TextView).setText(sortedList.get(0).Nom)
-            (findViewById(R.id.top_temps) as TextView).setText(getHumanTimeFormatFromMilliseconds(sortedList.get(0).Temps)+", trop puissant!")
-            loader.visibility = View.GONE
+            if (sortedList.size > 0) {
+                (findViewById(R.id.top_name) as TextView).setText(sortedList.get(0).Nom)
+                (findViewById(R.id.top_temps) as TextView).setText(getHumanTimeFormatFromMilliseconds(sortedList.get(0).Temps)+", trop puissant!")
+            }
             content.visibility = View.VISIBLE
-
+            loader.visibility = View.GONE
 
             scoreListAdapter = ScoreListAdapter(scoresToShow)
             recyclerView.adapter = scoreListAdapter
