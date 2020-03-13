@@ -10,30 +10,25 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.MediaPlayer
-import android.opengl.Visibility
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Vibrator
 import android.ut3.aviatio.R
+import android.ut3.aviatio.model.Bullet
+import android.ut3.aviatio.model.GameState
+import android.view.MotionEvent
 import android.view.TextureView
 import android.view.View
-import android.widget.Button
+import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import be.tarsos.dsp.io.android.AudioDispatcherFactory
 import be.tarsos.dsp.onsets.OnsetHandler
 import be.tarsos.dsp.onsets.PercussionOnsetDetector
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
 import java.util.*
-import android.ut3.aviatio.di.scoreRepository
-import android.ut3.aviatio.di.scoreViewModel
-import android.ut3.aviatio.model.Bullet
-import android.ut3.aviatio.model.GameState
-import android.view.MotionEvent
-import android.widget.RelativeLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import org.koin.core.context.startKoin
 
 class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
 

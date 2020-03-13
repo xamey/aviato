@@ -7,6 +7,7 @@ import android.ut3.aviatio.helper.getHumanTimeFormatFromMilliseconds
 import android.ut3.aviatio.model.RankedScore
 import android.ut3.aviatio.viewmodel.ScoreViewModel
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView

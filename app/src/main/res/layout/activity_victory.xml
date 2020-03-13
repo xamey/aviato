@@ -46,7 +46,7 @@
                     android:backgroundTint="@color/color3"
                     android:textColorHint="@color/color3"
                     android:textColor="@color/color3"
-                    android:hint="Veuillez insérer votre nom"/>
+                    android:hint="Veuillez saisir votre nom"/>
 
                 <ImageButton
                     android:id="@+id/sendVictoryButton"
