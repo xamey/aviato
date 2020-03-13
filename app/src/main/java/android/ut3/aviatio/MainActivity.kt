@@ -159,8 +159,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         if (timer != null) {
             timer!!.cancel()
         }
-        if (timerTask != null) {
-            timerTask!!.cancel()
+        if (gameTimer != null) {
+            gameTimer!!.cancel()
         }
         mSensorManager.unregisterListener(this)
     }
