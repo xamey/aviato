@@ -60,8 +60,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var textureView: TextureView;
     private var canvas: Canvas? = null;
-    private lateinit var gameTimer: Timer;
+    private var gameTimer: Timer? = null;
     private var bullets: MutableList<Bullet> = ArrayList()
+
+    private var isDrawing: Boolean = false;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,16 +102,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL)
         initializeTimerTask()
-        super.onResume()
-        gameTimer = Timer()
-        gameTimer.schedule(object : TimerTask() {
-            override fun run() {
-                changePos()
-            }
-        }, 0, 50)
+        if (timer == null) {
+            gameTimer = Timer()
+            gameTimer!!.schedule(object : TimerTask() {
+                override fun run() {
+                    if (!isDrawing) {
+                        changePos()
+                    }
+                }
+            }, 0, 50)
+        }
     }
 
     private fun changePos() {
+        isDrawing = true;
         canvas = textureView.lockCanvas();
         if (canvas != null) {
             if (bullets.size < 10) {
@@ -118,12 +124,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             drawBullets(canvas!!)
         }
         textureView.unlockCanvasAndPost(canvas);
-
+        isDrawing = false;
     }
 
     private fun generateBullets(size: Int, maxHeight: Float, maxWidth: Float) {
         var random = Random();
-        println("Height" + maxHeight + "witdth " + maxWidth)
         repeat(size) {
             bullets.add(Bullet(
                 random.nextFloat() * maxWidth,
@@ -183,7 +188,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val mPercussionDetector = PercussionOnsetDetector(22050f, 1024,
             object : OnsetHandler {
                 override fun handleOnset(time: Double, salience: Double) {
-                    println("Clap detected!")
                     startAlert();
                 }
             }, sensitivity, threshold
@@ -200,11 +204,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent) {
         if (event.sensor.type == Sensor.TYPE_PROXIMITY) {
             rp = event.values[0];
-            // println("Prox: " + rp);
         }
 
         if (event.sensor.type == Sensor.TYPE_LIGHT) {
-            // println("Light : " + event.values[0]);
             rl=event.values[0];
         }
         if((rp!=-1f || mProximity == null) && (rl!=-1f)){
