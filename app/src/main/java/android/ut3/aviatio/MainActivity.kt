@@ -44,8 +44,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         setContentView(R.layout.activity_main)
 
         requestPermissions()
-        if (!checkPermissions()) {
-            onStop();
+        while (!checkPermissions()) {
+            // onStop();
         }
 
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
@@ -117,16 +117,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             println("Light : " + event.values[0]);
             rl=event.values[0];
         }
-
-        if((rp!=-1f) && (rl!=-1f)){
+        if((rp!=-1f || mProximity == null) && (rl!=-1f)){
             detect(rp, rl);
         }
     }
 
     private fun detect(prox: Float, light: Float) {
-        if ((prox < PROX_POCKET_TRESHOLD) && (light < LIGHT_POCKET_TRESHOLD)) {
+        if ((prox < PROX_POCKET_TRESHOLD || mProximity == null) && (light < LIGHT_POCKET_TRESHOLD)) {
             println("In the pocket")
-        } else if (prox >= PROX_POCKET_TRESHOLD && light >= LIGHT_POCKET_TRESHOLD) {
+        } else if ((prox >= PROX_POCKET_TRESHOLD || mProximity == null) && light >= LIGHT_POCKET_TRESHOLD) {
             println("Not in the pocket")
         }
     }
