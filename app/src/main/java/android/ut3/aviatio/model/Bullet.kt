@@ -1,4 +1,4 @@
-package android.ut3.aviatio
+package android.ut3.aviatio.model
 
 data class Bullet(
     var x: Float,

@@ -5,4 +5,5 @@
     <string name="startGame">Arrêter les balles !</string>
     <string name="putPhoneInPocket">Mettez le téléphone dans votre poche pour commencer !</string>
     <string name="title_activity_game">GameActivity</string>
+    <string name="title_activity_launch_game">LaunchGameActivity</string>
 </resources>
