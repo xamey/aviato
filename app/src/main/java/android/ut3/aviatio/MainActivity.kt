@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         changePos()
                     }
                 }
-            }, 0, 50)
+            }, 0, 20)
         }
     }
 
@@ -156,6 +156,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onPause() {
         super.onPause()
+        if (timer != null) {
+            timer!!.cancel()
+        }
+        if (timerTask != null) {
+            timerTask!!.cancel()
+        }
         mSensorManager.unregisterListener(this)
     }
 
