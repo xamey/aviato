@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         if (mProximity == null) {
             mediaPlayer = MediaPlayer.create(this, R.raw.alert);
+            mediaPlayer!!.isLooping = true
         }
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
     }
@@ -160,7 +161,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             if (vibrator.hasVibrator()) {
                 vibrator.cancel();
             } else {
-                mediaPlayer?.stop();
+                mediaPlayer?.pause();
             }
             runOnUiThread {
                 stopButton.isEnabled = false
