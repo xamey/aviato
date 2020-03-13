@@ -2,6 +2,7 @@ package android.ut3.aviatio.view
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.Sensor
@@ -42,6 +43,8 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
 
     val BULLET_SIZE = 80;
 
+    val MAX_SCORE = 10
+
     private var state: GameState = GameState.WAITING;
 
     private lateinit var mSensorManager: SensorManager;
@@ -66,6 +69,7 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var startGameButton: FloatingActionButton;
     private lateinit var timerTv: TextView
     private lateinit var phoneInPocketTv: TextView
+    private lateinit var scoreTv: TextView
 
     private var alertIsStarted: Boolean = false;
     private var isInThePocket: Boolean = false
@@ -106,6 +110,8 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         startGameWrapper = findViewById(R.id.startGameWrapper)
         phoneInPocketTv.visibility = View.VISIBLE
         startGameButton.isEnabled = false;
+        scoreTv = findViewById(R.id.scoreTv)
+        scoreTv.text = String.format("0/%d", MAX_SCORE);
         startGameButton.visibility = View.GONE
         startGameButton.setOnClickListener {
             stopAlert()
@@ -144,9 +150,17 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
             if (bullet.x < x && x < bullet.x + BULLET_SIZE
                 && bullet.y < y && y < bullet.y + BULLET_SIZE
             ) {
-                nbTouche ++;
+                incrementScore();
                 return removeBullet(bullet);
             }
+        }
+    }
+
+    private fun incrementScore() {
+        nbTouche = nbTouche + 1;
+        scoreTv.text = String.format("%d/%d", nbTouche, MAX_SCORE);
+        if (nbTouche >= MAX_SCORE) {
+            endGame()
         }
     }
 
@@ -209,6 +223,7 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
             gameTimer!!.cancel()
         }
         mSensorManager.unregisterListener(this)
+        nbTouche = 0
     }
 
     private fun startGame() {
@@ -246,7 +261,7 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
                 startGameButton.visibility = View.VISIBLE
 
             }
-            state = GameState.WAITING_FOR_CLICK_GAME
+            state = GameState.WAITING_FOR_CLICK_GAME;
         }
     }
 
@@ -327,6 +342,10 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
             state = GameState.WAITING
             phoneInPocketTv.visibility = if (state == GameState.WAITING) View.VISIBLE else View.GONE
             startGameWrapper.visibility = View.VISIBLE
+            val intent = Intent(this, VictoryActivity::class.java);
+            intent.putExtra("score", scoreInMillis.toInt())
+            startActivity(intent);
+
         }
     }
 
