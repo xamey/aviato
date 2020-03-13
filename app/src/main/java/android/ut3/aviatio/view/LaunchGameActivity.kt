@@ -3,9 +3,7 @@ package android.ut3.aviatio.view
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -31,6 +29,7 @@ import android.ut3.aviatio.di.scoreRepository
 import android.ut3.aviatio.di.scoreViewModel
 import android.ut3.aviatio.model.Bullet
 import android.ut3.aviatio.model.GameState
+import android.view.MotionEvent
 import android.widget.RelativeLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.koin.core.context.startKoin
@@ -40,6 +39,8 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
     val PERMISSION_ID = 42
 
     val SOUND_SENSITIVITY = 67.5 // TODO
+
+    val BULLET_SIZE = 80;
 
     private var state: GameState = GameState.WAITING;
 
@@ -76,6 +77,12 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
 
     private var isDrawing: Boolean = false;
 
+    private var bulletsToDelete: MutableList<Bullet> = ArrayList();
+    private var bulletPicture: Bitmap? = null;
+    private var isDeleting: Boolean = false;
+
+    private var nbTouche: Int = 0;
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (supportActionBar != null) {
@@ -89,6 +96,7 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         }
 
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+        bulletPicture = BitmapFactory.decodeResource(resources, R.drawable.bullet);
 
         setUpAmbientSongListener();
         startGameButton = findViewById(R.id.startGame);
@@ -116,7 +124,38 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
             mSensorManager.registerListener(this, mProximity, SensorManager.SENSOR_DELAY_NORMAL)
         }
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL)
+
+        textureView.setOnTouchListener (object : View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                if (event != null && event!!.action == MotionEvent.ACTION_DOWN) {
+                    onGameTouched(event.getX(), event.getY())
+                    return true;
+                }
+                return false;
+            }
+        });
+
         initializeTimerTask()
+    }
+
+    private fun onGameTouched(x: Float, y: Float) {
+        for (bullet in bullets) {
+            if (bullet.x < x && x < bullet.x + BULLET_SIZE
+                && bullet.y < y && y < bullet.y + BULLET_SIZE
+            ) {
+                nbTouche ++;
+                return removeBullet(bullet);
+            }
+        }
+    }
+
+    private fun removeTouched() {
+        bullets = bullets.filter { b -> !bulletsToDelete.contains(b)}.toMutableList();
+        bulletsToDelete = ArrayList();
+    }
+
+    private fun removeBullet(bullet: Bullet) {
+        bulletsToDelete.add(bullet);
     }
 
     private fun changePos() {
@@ -151,9 +190,9 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         canvas.drawColor(resources.getColor(R.color.colorWhite))
         for (bullet in bullets) {
             bullet.y = bullet.y + 12
-            canvas?.drawCircle(bullet.x, bullet.y, 50f, paint)
-        }
+            canvas?.drawBitmap(bulletPicture!! ,null, RectF(bullet.x, bullet.y, bullet.x + BULLET_SIZE, bullet.y + BULLET_SIZE), paint)        }
         removeInvisible(canvas);
+        removeTouched();
     }
 
     private fun removeInvisible(canvas: Canvas) {
