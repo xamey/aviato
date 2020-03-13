@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Aviatio</string>
     <string name="stop">Stop</string>
-    <string name="putPhoneInPocket">Mettez votre smartphone dans votre poche pour commencer !</string>
+    <string name="putPhoneInPocket">Mettez le téléphone dans votre poche pour commencer !</string>
 </resources>

@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     val PERMISSION_ID = 42
 
-    val SOUND_SENSITIVITY = 50.0 // TODO
+    val SOUND_SENSITIVITY = 67.5 // TODO
 
     private lateinit var mSensorManager: SensorManager;
     private var mProximity: Sensor? = null;
@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         setUpAmbientSongListener();
         stopButton = findViewById(R.id.stopBtn);
         timerTv = findViewById(R.id.timerTv)
-        phoneInPocketTv = findViewById(R.id.phoneInPocketTv)
+        phoneInPocketTv = findViewById(R.id.logTv)
         phoneInPocketTv.visibility = View.VISIBLE
         stopButton.isEnabled = false;
         stopButton.setOnClickListener {
@@ -143,11 +143,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent) {
         if (event.sensor.type == Sensor.TYPE_PROXIMITY) {
             rp = event.values[0];
-           println("Prox: " + rp);
+            // println("Prox: " + rp);
         }
 
         if (event.sensor.type == Sensor.TYPE_LIGHT) {
-            println("Light : " + event.values[0]);
+            // println("Light : " + event.values[0]);
             rl=event.values[0];
         }
         if((rp!=-1f || mProximity == null) && (rl!=-1f)){
