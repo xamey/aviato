@@ -274,22 +274,21 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun setUpAmbientSongListener() {
-        val dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0)
-
-        val threshold = 8.0
-        val sensitivity = SOUND_SENSITIVITY
-
-        val mPercussionDetector = PercussionOnsetDetector(
-            22050f, 1024,
-            object : OnsetHandler {
-                override fun handleOnset(time: Double, salience: Double) {
-                    startAlert();
-                }
-            }, sensitivity, threshold
-        )
-
-        dispatcher.addAudioProcessor(mPercussionDetector)
-        Thread(dispatcher, "Audio Dispatcher").start()
+        if (soundDispatcher == null && soundThread == null) {
+            soundDispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0)
+            val threshold = 8.0
+            val mPercussionDetector = PercussionOnsetDetector(
+                22050f, 1024,
+                object : OnsetHandler {
+                    override fun handleOnset(time: Double, salience: Double) {
+                        startAlert();
+                    }
+                }, SOUND_SENSITIVITY, threshold
+            )
+            soundDispatcher!!.addAudioProcessor(mPercussionDetector)
+            soundThread = Thread(soundDispatcher, "Audio Dispatcher")
+            soundThread!!.start()
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
