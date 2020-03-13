@@ -104,7 +104,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
 
         setUpAmbientSongListener();
-        stopButton = findViewById(R.id.stopBtn);
         timerTv = findViewById(R.id.timerTv)
         textureView = findViewById(R.id.textureView)
         phoneInPocketTv = findViewById(R.id.logTv)

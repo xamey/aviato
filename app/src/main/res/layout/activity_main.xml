@@ -74,16 +74,17 @@
         </LinearLayout>
 
         <RelativeLayout
+            android:id="@+id/startGameWrapper"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <Button
-                android:id="@+id/stopBtn"
+                android:id="@+id/startGame"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:enabled="false"
-                android:text="@string/stop" />
+                android:text="@string/startGame" />
 
         </RelativeLayout>
 
