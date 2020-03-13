@@ -11,13 +11,27 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/phoneInPocketTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/putPhoneInPocket"
+            android:textAlignment="center"
+            android:textColor="#9C27B0"
+            android:textSize="30sp" />
+
         <Button
             android:id="@+id/stopBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:onClick="stopAlert"
             android:text="@string/stop" />
+
+        <TextView
+            android:id="@+id/timerTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
