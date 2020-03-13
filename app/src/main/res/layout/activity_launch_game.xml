@@ -73,7 +73,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="35sp"
                     android:padding="10dp"
-                    android:text="0/10" />
+                    android:text="" />
 
                 <View
                     android:layout_width="0dp"
