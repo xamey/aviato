@@ -11,7 +11,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.MediaPlayer
-import android.content.Intent
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -28,9 +28,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.ut3.aviatio.di.scoreRepository
 import android.ut3.aviatio.di.scoreViewModel
-import android.ut3.aviatio.helper.getHumanTimeFormatFromMilliseconds
-import android.ut3.aviatio.view.ShowScoresActivity
-import android.ut3.aviatio.view.VictoryActivity
+import android.ut3.aviatio.model.GameState
+import android.widget.RelativeLayout
 import org.koin.core.context.startKoin
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
@@ -39,6 +38,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     val SOUND_SENSITIVITY = 67.5 // TODO
 
+    private var state: GameState = GameState.WAITING;
 
     private lateinit var mSensorManager: SensorManager;
     private var mProximity: Sensor? = null;
@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private val SENSOR_SENSITIVITY = 4
     private lateinit var vibrator: Vibrator;
     private var mediaPlayer: MediaPlayer? = null;
+    private lateinit var startGameWrapper: RelativeLayout
 
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private val LIGHT_POCKET_TRESHOLD = 30f;
     private val PROX_POCKET_TRESHOLD = 1f;
 
-    private lateinit var stopButton: Button;
+    private lateinit var startGameButton: Button;
     private lateinit var timerTv: TextView
     private lateinit var phoneInPocketTv: TextView
 
@@ -100,13 +101,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
 
         setUpAmbientSongListener();
-        stopButton = findViewById(R.id.stopBtn);
+        startGameButton = findViewById(R.id.startGame);
         timerTv = findViewById(R.id.timerTv)
         textureView = findViewById(R.id.textureView)
         phoneInPocketTv = findViewById(R.id.logTv)
+        startGameWrapper = findViewById(R.id.startGameWrapper)
         phoneInPocketTv.visibility = View.VISIBLE
-        stopButton.isEnabled = false;
-        stopButton.setOnClickListener {
+        startGameButton.isEnabled = false;
+        startGameButton.setOnClickListener {
             stopAlert()
         }
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager;
@@ -125,16 +127,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL)
         initializeTimerTask()
-        if (timer == null) {
-            gameTimer = Timer()
-            gameTimer!!.schedule(object : TimerTask() {
-                override fun run() {
-                    if (!isDrawing) {
-                        changePos()
-                    }
-                }
-            }, 0, 20)
-        }
     }
 
     private fun changePos() {
@@ -169,7 +161,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             bullet.y += 12
             canvas?.drawCircle(bullet.x,bullet.y, 50f, paint)
         }
-
         removeInvisible(canvas);
     }
 
@@ -188,8 +179,29 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         mSensorManager.unregisterListener(this)
     }
 
+    private fun startGame() {
+        if (state == GameState.WAITING_FOR_CLICK_GAME) {
+            if (gameTimer != null) {
+                gameTimer!!.cancel()
+                gameTimer = null
+            }
+            if (gameTimer == null) {
+                gameTimer = Timer()
+                isDrawing = false
+                gameTimer!!.schedule(object : TimerTask() {
+                    override fun run() {
+                        if (!isDrawing) {
+                            changePos()
+                        }
+                    }
+                }, 0, 20)
+            }
+            state = GameState.PLAYING;
+        }
+    }
+
     private fun startAlert() {
-        if (!alertIsStarted && isInThePocket) {
+        if (state == GameState.IN_POCKET) {
             val pattern: LongArray = longArrayOf(0,200,0)
             if (vibrator.hasVibrator()) {
                 vibrator.vibrate(pattern,0);
@@ -198,9 +210,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
             startTimer()
             runOnUiThread {
-                stopButton.isEnabled = true
+                startGameButton.isEnabled = true
             }
-            alertIsStarted = true;
+            state = GameState.WAITING_FOR_CLICK_GAME;
         }
     }
 
@@ -239,17 +251,24 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             rl=event.values[0];
         }
         if((rp!=-1f || mProximity == null) && (rl!=-1f)){
-            detect(rp, rl);
+            checkIfInPocket(rp, rl);
         }
     }
 
-    private fun detect(prox: Float, light: Float) {
+    private fun checkIfInPocket(prox: Float, light: Float) {
         if ((prox < PROX_POCKET_TRESHOLD || mProximity == null) && (light < LIGHT_POCKET_TRESHOLD)) {
             isInThePocket = true;
         } else if ((prox >= PROX_POCKET_TRESHOLD || mProximity == null) && light >= LIGHT_POCKET_TRESHOLD) {
             isInThePocket = false;
         }
-        phoneInPocketTv.visibility = if (isInThePocket || alertIsStarted) View.GONE else View.VISIBLE
+        when (state) {
+            GameState.WAITING -> if (isInThePocket) state = GameState.IN_POCKET
+            GameState.IN_POCKET -> state = if (isInThePocket) GameState.IN_POCKET else GameState.WAITING
+            GameState.PLAYING, GameState.WAITING_FOR_CLICK_GAME ->  {
+                // nothing
+            }
+        }
+        phoneInPocketTv.visibility = if (state == GameState.WAITING) View.VISIBLE else View.GONE
     }
 
     private fun requestPermissions() {
@@ -263,18 +282,30 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         )
     }
 
-    private fun stopAlert() {
-        if (alertIsStarted && stopButton.isEnabled) {
+    private fun endGame() {
+        if (state == GameState.PLAYING) {
             stoptimertask()
+            gameTimer!!.cancel()
+            var scoreInMillis: Long = (System.currentTimeMillis() - timerStartTime)
+            // todo open activity with score
+            state = GameState.WAITING
+            phoneInPocketTv.visibility = if (state == GameState.WAITING) View.VISIBLE else View.GONE
+            startGameWrapper.visibility = View.VISIBLE
+        }
+    }
+
+    private fun stopAlert() {
+        if (state == GameState.WAITING_FOR_CLICK_GAME && startGameButton.isEnabled) {
             if (vibrator.hasVibrator()) {
                 vibrator.cancel();
             } else {
                 mediaPlayer?.pause();
             }
             runOnUiThread {
-                stopButton.isEnabled = false
+                startGameButton.isEnabled = false
             }
-            alertIsStarted = false;
+            startGameWrapper.visibility = View.GONE
+            startGame()
         }
     }
 
