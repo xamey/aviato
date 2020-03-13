@@ -17,6 +17,7 @@ import be.tarsos.dsp.onsets.PercussionOnsetDetector
 import android.os.Build
 import android.os.VibrationEffect
 import android.hardware.SensorManager
+import android.media.MediaPlayer
 import android.widget.Toast
 
 
@@ -31,6 +32,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var mLight: Sensor;
     private val SENSOR_SENSITIVITY = 4
     private lateinit var vibrator: Vibrator;
+    private var mediaPlayer: MediaPlayer? = null;
 
     private var rp: Float = -1f
     private var rl: Float =-1f;
@@ -54,6 +56,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager;
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        if (mProximity == null) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.alert);
+        }
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
     }
 
@@ -80,7 +85,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun fallbackEmitSong() {
-        // TODO
+        mediaPlayer?.start();
     }
 
     private fun setUpAmbientSongListener() {
