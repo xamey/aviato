@@ -87,6 +87,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/startGame"
                     android:backgroundTint="@color/colorPrimary"
@@ -95,9 +96,13 @@
                     android:layout_centerInParent="true"
                     android:layout_gravity="bottom|end"
                     android:src="@drawable/ic_pistol"
-
                     android:layout_margin="@dimen/fab_margin"  />
-
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cliquez sur le pistolet pour dégommer les balles!"
+                    android:layout_below="@+id/startGame"
+                    android:textAlignment="center"/>
             </RelativeLayout>
 
             <TextureView
