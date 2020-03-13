@@ -344,7 +344,8 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
             startGameWrapper.visibility = View.VISIBLE
             val intent = Intent(this, VictoryActivity::class.java);
             intent.putExtra("score", scoreInMillis.toInt())
-            startActivity(intent);
+            startActivity(intent)
+            finish()
 
         }
     }
