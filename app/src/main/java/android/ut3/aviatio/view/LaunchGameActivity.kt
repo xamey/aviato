@@ -33,9 +33,7 @@ import be.tarsos.dsp.AudioDispatcher
 
 class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
 
-    val PERMISSION_ID = 42
-
-    val SOUND_SENSITIVITY = 50.0 // TODO
+    val SOUND_SENSITIVITY = 70.0 // TODO
 
     val BULLET_SIZE = 80;
 
@@ -93,10 +91,6 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         }
         setContentView(R.layout.activity_launch_game)
 
-        requestPermissions()
-        while (!checkPermissions()) {
-            // onStop();
-        }
 
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
         bulletPicture = BitmapFactory.decodeResource(resources, R.drawable.bullet);
@@ -332,17 +326,6 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         phoneInPocketTv.visibility = if (state == GameState.WAITING) View.VISIBLE else View.GONE
     }
 
-    private fun requestPermissions() {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.VIBRATE
-            ),
-            PERMISSION_ID
-        )
-    }
-
     private fun endGame() {
         if (state == GameState.PLAYING) {
             stoptimertask()
@@ -404,18 +387,4 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
-    private fun checkPermissions(): Boolean {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.VIBRATE
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            return true
-        }
-        return false
-    }
 }
