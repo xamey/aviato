@@ -36,7 +36,7 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
 
     val PERMISSION_ID = 42
 
-    val SOUND_SENSITIVITY = 67.5 // TODO
+    val SOUND_SENSITIVITY = 50.0 // TODO
 
     val BULLET_SIZE = 80;
 
@@ -216,6 +216,9 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         super.onPause()
         if (timer != null) {
             timer!!.cancel()
+        }
+        if (mediaPlayer != null) {
+            mediaPlayer!!.pause()
         }
         if (gameTimer != null) {
             gameTimer!!.cancel()
