@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "816635635335",
+    "firebase_url": "https://aviato-e87c7.firebaseio.com",
+    "project_id": "aviato-e87c7",
+    "storage_bucket": "aviato-e87c7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:816635635335:android:31e477f06de19f9b03ba22",
+        "android_client_info": {
+          "package_name": "android.ut3.aviatio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "816635635335-29l14lnbh2houdeuadc40cd3ot70t8ki.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "android.ut3.aviatio",
+            "certificate_hash": "35335e070ce5e1422c48ad8c76e9de325234cb98"
+          }
+        },
+        {
+          "client_id": "816635635335-ne1kf3m4pk0d1ogsngsljr1qqvibnmsj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlQ5q6PMLeY7_1scWsXyynt4utEF4Xz9w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "816635635335-ne1kf3m4pk0d1ogsngsljr1qqvibnmsj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
