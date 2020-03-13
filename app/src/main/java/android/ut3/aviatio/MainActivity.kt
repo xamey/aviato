@@ -6,11 +6,12 @@ import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
-
 import android.os.Vibrator
+import android.view.View
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import be.tarsos.dsp.io.android.AudioDispatcherFactory
 import be.tarsos.dsp.onsets.OnsetHandler
 import be.tarsos.dsp.onsets.PercussionOnsetDetector
@@ -40,20 +41,25 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private val LIGHT_POCKET_TRESHOLD = 30f;
     private val PROX_POCKET_TRESHOLD = 1f;
 
+    private lateinit var stopButton: Button;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         requestPermissions()
-        if (!checkPermissions()) {
-            onStop();
+        while (!checkPermissions()) {
+            // onStop();
         }
 
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
 
         setUpAmbientSongListener();
-
+        stopButton = findViewById(R.id.stopBtn);
+        stopButton.isEnabled = false;
+        stopButton.setOnClickListener {
+            stopAlert()
+        }
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager;
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         if (mProximity == null) {
@@ -81,6 +87,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             vibrator.vibrate(pattern,0);
         } else {
             fallbackEmitSong();
+        }
+        runOnUiThread {
+            stopButton.isEnabled = true
         }
     }
 
@@ -122,22 +131,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             println("Light : " + event.values[0]);
             rl=event.values[0];
         }
-
-        if((rp!=-1f) && (rl!=-1f)){
+        if((rp!=-1f || mProximity == null) && (rl!=-1f)){
             detect(rp, rl);
         }
     }
 
     private fun detect(prox: Float, light: Float) {
-        if ((prox < PROX_POCKET_TRESHOLD) && (light < LIGHT_POCKET_TRESHOLD)) {
+        if ((prox < PROX_POCKET_TRESHOLD || mProximity == null) && (light < LIGHT_POCKET_TRESHOLD)) {
             println("In the pocket")
-        } else if (prox >= PROX_POCKET_TRESHOLD && light >= LIGHT_POCKET_TRESHOLD) {
+        } else if ((prox >= PROX_POCKET_TRESHOLD || mProximity == null) && light >= LIGHT_POCKET_TRESHOLD) {
             println("Not in the pocket")
         }
     }
 
     private fun requestPermissions() {
-
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
@@ -147,6 +154,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             PERMISSION_ID
         )
     }
+
+    private fun stopAlert() {
+        if (stopButton.isEnabled) {
+            if (vibrator.hasVibrator()) {
+                vibrator.cancel();
+            } else {
+                mediaPlayer?.stop();
+            }
+            runOnUiThread {
+                stopButton.isEnabled = false
+            }
+        }
+    }
+
     private fun checkPermissions(): Boolean {
         if (ActivityCompat.checkSelfPermission(
                 this,
