@@ -10,7 +10,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.MediaPlayer
-import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -18,7 +17,6 @@ import android.os.Vibrator
 import android.ut3.aviatio.R
 import android.view.TextureView
 import android.view.View
-import android.widget.Button
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import be.tarsos.dsp.io.android.AudioDispatcherFactory
@@ -26,12 +24,11 @@ import be.tarsos.dsp.onsets.OnsetHandler
 import be.tarsos.dsp.onsets.PercussionOnsetDetector
 import java.text.SimpleDateFormat
 import java.util.*
-import android.ut3.aviatio.di.scoreRepository
-import android.ut3.aviatio.di.scoreViewModel
 import android.ut3.aviatio.model.Bullet
 import android.ut3.aviatio.model.GameState
 import android.view.MotionEvent
 import android.widget.RelativeLayout
+import be.tarsos.dsp.AudioDispatcher
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.koin.core.context.startKoin
 
@@ -85,6 +82,9 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
     private var bulletPicture: Bitmap? = null;
     private var isDeleting: Boolean = false;
 
+    private var soundDispatcher: AudioDispatcher? = null
+    private var soundThread: Thread? = null
+
     private var nbTouche: Int = 0;
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,7 +102,6 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
         bulletPicture = BitmapFactory.decodeResource(resources, R.drawable.bullet);
 
-        setUpAmbientSongListener();
         startGameButton = findViewById(R.id.startGame);
         timerTv = findViewById(R.id.timerTv)
         textureView = findViewById(R.id.textureView)
@@ -130,8 +129,8 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         if (mProximity != null) {
             mSensorManager.registerListener(this, mProximity, SensorManager.SENSOR_DELAY_NORMAL)
         }
+        setUpAmbientSongListener();
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL)
-
         textureView.setOnTouchListener (object : View.OnTouchListener {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 if (event != null && event!!.action == MotionEvent.ACTION_DOWN) {
@@ -141,7 +140,6 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
                 return false;
             }
         });
-
         initializeTimerTask()
     }
 
@@ -222,6 +220,13 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         if (gameTimer != null) {
             gameTimer!!.cancel()
         }
+        if (soundDispatcher != null) {
+            soundDispatcher!!.stop()
+            soundDispatcher = null
+        }
+        if (soundThread != null) {
+            soundThread = null
+        }
         mSensorManager.unregisterListener(this)
         nbTouche = 0
     }
@@ -270,22 +275,21 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun setUpAmbientSongListener() {
-        val dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0)
-
-        val threshold = 8.0
-        val sensitivity = SOUND_SENSITIVITY
-
-        val mPercussionDetector = PercussionOnsetDetector(
-            22050f, 1024,
-            object : OnsetHandler {
-                override fun handleOnset(time: Double, salience: Double) {
-                    startAlert();
-                }
-            }, sensitivity, threshold
-        )
-
-        dispatcher.addAudioProcessor(mPercussionDetector)
-        Thread(dispatcher, "Audio Dispatcher").start()
+        if (soundDispatcher == null && soundThread == null) {
+            soundDispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0)
+            val threshold = 8.0
+            val mPercussionDetector = PercussionOnsetDetector(
+                22050f, 1024,
+                object : OnsetHandler {
+                    override fun handleOnset(time: Double, salience: Double) {
+                        startAlert();
+                    }
+                }, SOUND_SENSITIVITY, threshold
+            )
+            soundDispatcher!!.addAudioProcessor(mPercussionDetector)
+            soundThread = Thread(soundDispatcher, "Audio Dispatcher")
+            soundThread!!.start()
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
