@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Aviatio</string>
     <string name="default_top_1">Pas encore défini!</string>
-    <string name="default_top_1_date_time">Rien</string>
+    <string name="default_top_1_date_time">Donc pas de score!</string>
     <string name="startGame">Arrêter les balles !</string>
     <string name="putPhoneInPocket">Mettez le téléphone dans votre poche pour commencer !</string>
     <string name="title_activity_game">GameActivity</string>

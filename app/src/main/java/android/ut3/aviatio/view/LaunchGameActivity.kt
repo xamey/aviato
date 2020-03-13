@@ -10,6 +10,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.MediaPlayer
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Vibrator
@@ -21,7 +22,6 @@ import android.view.TextureView
 import android.view.View
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import be.tarsos.dsp.io.android.AudioDispatcherFactory
 import be.tarsos.dsp.onsets.OnsetHandler
@@ -29,6 +29,7 @@ import be.tarsos.dsp.onsets.PercussionOnsetDetector
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
 import java.util.*
+import be.tarsos.dsp.AudioDispatcher
 
 class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
 
@@ -80,6 +81,9 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
     private var bulletPicture: Bitmap? = null;
     private var isDeleting: Boolean = false;
 
+    private var soundDispatcher: AudioDispatcher? = null
+    private var soundThread: Thread? = null
+
     private var nbTouche: Int = 0;
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,6 +129,7 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         if (mProximity != null) {
             mSensorManager.registerListener(this, mProximity, SensorManager.SENSOR_DELAY_NORMAL)
         }
+        setUpAmbientSongListener();
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL)
 
         textureView.setOnTouchListener (object : View.OnTouchListener {
@@ -216,6 +221,13 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         }
         if (gameTimer != null) {
             gameTimer!!.cancel()
+        }
+        if (soundDispatcher != null) {
+            soundDispatcher!!.stop()
+            soundDispatcher = null
+        }
+        if (soundThread != null) {
+            soundThread = null
         }
         mSensorManager.unregisterListener(this)
         nbTouche = 0
