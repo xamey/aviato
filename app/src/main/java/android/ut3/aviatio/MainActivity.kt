@@ -8,6 +8,8 @@ import android.ut3.aviatio.di.scoreRepository
 import android.ut3.aviatio.di.scoreViewModel
 import android.ut3.aviatio.view.SelectionActivity
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
+
 import androidx.core.app.ActivityCompat
 import org.koin.core.context.startKoin
 
@@ -27,6 +29,8 @@ class MainActivity : AppCompatActivity() {
         if (supportActionBar != null) {
             supportActionBar?.hide()
         }
+        setContentView(R.layout.activity_main)
+
 
         requestPermissions()
         while (!checkPermissions()) {

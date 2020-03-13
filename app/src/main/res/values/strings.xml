@@ -6,4 +6,5 @@
     <string name="putPhoneInPocket">Mettez le téléphone dans votre poche pour commencer !</string>
     <string name="title_activity_game">GameActivity</string>
     <string name="title_activity_launch_game">LaunchGameActivity</string>
+    <string name="no_permission">Si la permission n\'est pas autorisé, le jeu ne se lance pas. Veuillez l\'accepter et relancer l\'application</string>
 </resources>
