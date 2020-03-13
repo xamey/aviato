@@ -6,18 +6,16 @@ import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import androidx.appcompat.app.AppCompatActivity
+import android.hardware.SensorManager
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
-
 import android.os.Vibrator
+import android.view.View
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import be.tarsos.dsp.io.android.AudioDispatcherFactory
 import be.tarsos.dsp.onsets.OnsetHandler
 import be.tarsos.dsp.onsets.PercussionOnsetDetector
-import android.os.Build
-import android.os.VibrationEffect
-import android.hardware.SensorManager
-import android.widget.Toast
 
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
@@ -38,6 +36,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private val LIGHT_POCKET_TRESHOLD = 30f;
     private val PROX_POCKET_TRESHOLD = 1f;
 
+    private lateinit var stopButton: Button;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +50,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
 
         setUpAmbientSongListener();
-
+        stopButton = findViewById(R.id.stopBtn);
+        stopButton.isEnabled = false;
+        stopButton.setOnClickListener {
+            stopAlert()
+        }
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager;
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
@@ -76,6 +79,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             vibrator.vibrate(pattern,0);
         } else {
             fallbackEmitSong();
+        }
+        runOnUiThread {
+            stopButton.isEnabled = true
         }
     }
 
@@ -131,7 +137,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun requestPermissions() {
-
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
@@ -141,6 +146,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             PERMISSION_ID
         )
     }
+
+    private fun stopAlert() {
+        if (stopButton.isEnabled) {
+            vibrator.cancel()
+            // todo clément
+            runOnUiThread {
+                stopButton.isEnabled = false
+            }
+        }
+    }
+
     private fun checkPermissions(): Boolean {
         if (ActivityCompat.checkSelfPermission(
                 this,
