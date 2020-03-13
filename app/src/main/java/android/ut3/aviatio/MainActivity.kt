@@ -27,6 +27,7 @@ import java.util.*
 import android.ut3.aviatio.di.scoreRepository
 import android.ut3.aviatio.di.scoreViewModel
 import android.ut3.aviatio.helper.getHumanTimeFormatFromMilliseconds
+import android.ut3.aviatio.view.SelectionActivity
 import android.ut3.aviatio.view.ShowScoresActivity
 import android.ut3.aviatio.view.VictoryActivity
 import android.view.MotionEvent
@@ -99,6 +100,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         if (supportActionBar != null) {
             supportActionBar?.hide()
         }
+
+        startActivity(Intent(this, SelectionActivity::class.java))
+        finish()
         requestPermissions()
         while (!checkPermissions()) {
             // onStop();
@@ -108,7 +112,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         bulletPicture = BitmapFactory.decodeResource(resources, R.drawable.bullet);
 
         setUpAmbientSongListener();
-        stopButton = findViewById(R.id.stopBtn);
         timerTv = findViewById(R.id.timerTv)
         textureView = findViewById(R.id.textureView)
         phoneInPocketTv = findViewById(R.id.logTv)
