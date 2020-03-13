@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     val SENSITIVITY = 67.5 // TODO
 
     private lateinit var mSensorManager: SensorManager;
-    private lateinit var mProximity: Sensor;
+    private var mProximity: Sensor? = null;
     private lateinit var mLight: Sensor;
     private val SENSOR_SENSITIVITY = 4
     private lateinit var vibrator: Vibrator;
@@ -59,7 +59,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
-        mSensorManager.registerListener(this, mProximity, SensorManager.SENSOR_DELAY_NORMAL)
+        if (mProximity != null) {
+            mSensorManager.registerListener(this, mProximity, SensorManager.SENSOR_DELAY_NORMAL)
+        }
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
@@ -70,11 +72,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private fun vibrate() {
         val pattern: LongArray = longArrayOf(0,200,0)
-        if (Build.VERSION.SDK_INT >= 26) {
+        if (vibrator.hasVibrator()) {
             vibrator.vibrate(pattern,0);
         } else {
-            vibrator.vibrate(pattern,0);
+            fallbackEmitSong();
         }
+    }
+
+    private fun fallbackEmitSong() {
+        // TODO
     }
 
     private fun setUpAmbientSongListener() {
