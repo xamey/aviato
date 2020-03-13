@@ -106,6 +106,7 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
         startGameWrapper = findViewById(R.id.startGameWrapper)
         phoneInPocketTv.visibility = View.VISIBLE
         startGameButton.isEnabled = false;
+        startGameButton.visibility = View.GONE
         startGameButton.setOnClickListener {
             stopAlert()
         }
@@ -242,8 +243,10 @@ class LaunchGameActivity : AppCompatActivity(), SensorEventListener {
             startTimer()
             runOnUiThread {
                 startGameButton.isEnabled = true
+                startGameButton.visibility = View.VISIBLE
+
             }
-            state = GameState.WAITING_FOR_CLICK_GAME;
+            state = GameState.WAITING_FOR_CLICK_GAME
         }
     }
 
