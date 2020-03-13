@@ -48,6 +48,7 @@ dependencies {
     implementation 'org.koin:koin-androidx-scope:2.0.1'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
 
 
     implementation 'com.mikhaellopez:circularimageview:3.2.0'
