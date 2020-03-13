@@ -3,6 +3,9 @@ package android.ut3.aviatio
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -11,6 +14,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Vibrator
+import android.view.TextureView
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -54,6 +58,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var alertIsStarted: Boolean = false;
     private var isInThePocket: Boolean = false
 
+    private lateinit var textureView: TextureView;
+    private var canvas: Canvas? = null;
+    private lateinit var gameTimer: Timer;
+    private var bullets: MutableList<Bullet> = ArrayList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -68,6 +77,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         setUpAmbientSongListener();
         stopButton = findViewById(R.id.stopBtn);
         timerTv = findViewById(R.id.timerTv)
+        textureView = findViewById(R.id.textureView)
         phoneInPocketTv = findViewById(R.id.logTv)
         phoneInPocketTv.visibility = View.VISIBLE
         stopButton.isEnabled = false;
@@ -90,6 +100,53 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL)
         initializeTimerTask()
+        super.onResume()
+        gameTimer = Timer()
+        gameTimer.schedule(object : TimerTask() {
+            override fun run() {
+                changePos()
+            }
+        }, 0, 50)
+    }
+
+    private fun changePos() {
+        canvas = textureView.lockCanvas();
+        if (canvas != null) {
+            if (bullets.size < 10) {
+                generateBullets(10 - bullets.size, canvas!!.height * 1f, canvas!!.width * 1f)
+            }
+            drawBullets(canvas!!)
+        }
+        textureView.unlockCanvasAndPost(canvas);
+
+    }
+
+    private fun generateBullets(size: Int, maxHeight: Float, maxWidth: Float) {
+        var random = Random();
+        println("Height" + maxHeight + "witdth " + maxWidth)
+        repeat(size) {
+            bullets.add(Bullet(
+                random.nextFloat() * maxWidth,
+                (random.nextFloat() * maxHeight) - (maxHeight / 4) * 3
+            ))
+        }
+    }
+
+    private fun drawBullets(canvas: Canvas) {
+        var paint = Paint();
+        paint.setColor(Color.BLACK)
+        paint.strokeWidth = 50f
+        canvas.drawColor(resources.getColor(R.color.colorWhite))
+        for (bullet in bullets) {
+            bullet.y += 12
+            canvas?.drawCircle(bullet.x,bullet.y, 50f, paint)
+        }
+
+        removeInvisible(canvas);
+    }
+
+    private fun removeInvisible(canvas: Canvas) {
+        bullets = bullets.filter { b -> b.y < canvas.height }.toMutableList();
     }
 
     override fun onPause() {
